@@ -1,0 +1,23 @@
+Cave { Alice+PC, Stone, Hole }.
+
+  Stone -> +PC { Stone }.
+  +PC@Hole (Tunnel) -> Hole, Tunnel { +PC }.
+
+Tunnel { Cavity, Door+Stone, Opening }.
+
+  Cavity -> Cavity, "You could fit a stone in there."
+  Stone+Glowing, Cavity (Door+Stone) -> Cavity { Stone }, Door+Stone+Open.
+  Stone, Cavity -> Cavity { Stone }.
+  Tunnel { +PC@Opening } (SideRoom) -> Tunnel, SideRoom { +PC, Opening }.
+  +PC@Door+Stone+Open -> Door+Stone+Open, TreasureRoom { +PC }.
+
+SideRoom { Fountain }.
+
+  Fountain -> Fountain, "The water is refreshing."
+  Stone, Fountain -> Stone+Glowing, Fountain.
+  SideRoom { +PC@Opening } (Tunnel) -> SideRoom, Tunnel { +PC, Opening }.
+
+TreasureRoom { Treasure, Doorway }.
+
+  +PC@Doorway -> Doorway, Tunnel { +PC }.
+  Treasure -> +PC { Treasure } #won.

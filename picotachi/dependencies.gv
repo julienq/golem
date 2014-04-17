@@ -1,0 +1,57 @@
+digraph deadend {
+
+  node [fontname=Avenir, shape=box];
+  edge [fontname=Avenir];
+
+  { rank=same; start [shape=plaintext]; Cave [style=filled, fillcolor="#f8ca00"]; }
+
+  start -> Cave;
+  Cave -> Stone;
+  Cave -> Hole [color="#a61416"];
+  Stone -> Hole;
+  Stone -> c [style=dashed, color="#a61416"];
+  Cavity -> c;
+  c [shape=point];
+  c -> Nothing;
+  Nothing [shape=plaintext, label="(nothing)"];
+  Hole -> Tunnel;
+  
+  Tunnel [style=filled, fillcolor="#f8ca00"];
+
+  Tunnel -> Opening;
+  Tunnel -> Cavity;
+  Cavity -> Tunnel;
+  DoorOpen -> TreasureRoom;
+  Opening -> SideRoom;
+
+  SideRoom -> Opening;
+  Opening -> Tunnel;
+  SideRoom -> Fountain;
+  Fountain -> SideRoom;
+  Stone -> a [style=dashed];
+  Fountain -> a [style=dashed];
+  a -> GlowingStone;
+  a [shape=point];
+
+  GlowingStone [label="Stone+Glowing"];
+
+  GlowingStone -> b [style=dashed];
+  Cavity -> b [style=dashed];
+  b [shape=point];
+  b -> DoorOpen;
+  GlowingStone -> SideRoom;
+
+  TreasureRoom [style=filled, fillcolor="#f8ca00"];
+
+  { rank=same; DoorOpen [label="Door+Stone+Open"]; Doorway; }
+  
+  SideRoom [style=filled, fillcolor="#f8ca00"];
+
+  TreasureRoom -> Doorway;
+  Doorway -> Tunnel;
+  TreasureRoom -> Treasure;
+  Treasure -> won;
+
+  { rank=same; won [shape=plaintext, label="#won"]; Treasure }
+
+}
