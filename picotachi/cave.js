@@ -45,7 +45,9 @@ function unitem(e) {
   if (e.source.tags.PC) {
     document.getElementById("inventory").removeChild(e.item._img);
   } else if (e.source.__div) {
-    e.source.__div.removeChild(e.item._img);
+    try {
+      e.source.__div.removeChild(e.item._img);
+    } catch (_) {}
   }
 }
 
@@ -221,5 +223,6 @@ locations.TreasureRoom.item(items.treasure, items.doorway)
 show_location(locations.Cave);
 
 function won() {
+  status("You win!");
   alert("You win!");
 }
