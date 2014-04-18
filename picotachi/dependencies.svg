@@ -120,16 +120,16 @@
 <polygon fill="black" stroke="black" points="231.908,-247.5 225.42,-255.876 235.715,-253.374 231.908,-247.5"/>
 <polygon fill="black" stroke="black" points="273.991,-228.566 280.479,-220.19 270.183,-222.692 273.991,-228.566"/>
 </g>
-<!-- SideRoom -->
-<g id="node12" class="node"><title>SideRoom</title>
-<polygon fill="#f8ca00" stroke="black" points="319.237,-148 238.763,-148 238.763,-112 319.237,-112 319.237,-148"/>
-<text text-anchor="middle" x="279" y="-127.474" font-family="Avenir" font-size="14.00">SideRoom</text>
+<!-- Chamber -->
+<g id="node12" class="node"><title>Chamber</title>
+<polygon fill="#f8ca00" stroke="black" points="316.366,-148 243.634,-148 243.634,-112 316.366,-112 316.366,-148"/>
+<text text-anchor="middle" x="280" y="-127.474" font-family="Avenir" font-size="14.00">Chamber</text>
 </g>
-<!-- opening&#45;&gt;SideRoom -->
-<g id="edge11" class="edge"><title>opening&#45;&gt;SideRoom</title>
-<path fill="none" stroke="black" d="M229.323,-176.755C237.009,-169.676 245.402,-161.946 253.064,-154.889"/>
-<polygon fill="black" stroke="black" points="226.771,-174.347 221.787,-183.697 231.513,-179.496 226.771,-174.347"/>
-<polygon fill="black" stroke="black" points="255.445,-157.454 260.43,-148.104 250.703,-152.305 255.445,-157.454"/>
+<!-- opening&#45;&gt;Chamber -->
+<g id="edge11" class="edge"><title>opening&#45;&gt;Chamber</title>
+<path fill="none" stroke="black" d="M229.669,-176.755C237.457,-169.676 245.959,-161.946 253.723,-154.889"/>
+<polygon fill="black" stroke="black" points="227.079,-174.38 222.034,-183.697 231.788,-179.56 227.079,-174.38"/>
+<polygon fill="black" stroke="black" points="256.14,-157.421 261.185,-148.104 251.431,-152.241 256.14,-157.421"/>
 </g>
 <!-- door&#45;&gt;b -->
 <g id="edge20" class="edge"><title>door&#45;&gt;b</title>
@@ -173,28 +173,28 @@
 </g>
 <!-- fountain -->
 <g id="node13" class="node"><title>fountain</title>
-<polygon fill="none" stroke="black" points="312.304,-76 245.696,-76 245.696,-40 312.304,-40 312.304,-76"/>
-<text text-anchor="middle" x="279" y="-55.4744" font-family="Avenir" font-size="14.00">fountain</text>
+<polygon fill="none" stroke="black" points="313.304,-76 246.696,-76 246.696,-40 313.304,-40 313.304,-76"/>
+<text text-anchor="middle" x="280" y="-55.4744" font-family="Avenir" font-size="14.00">fountain</text>
 </g>
-<!-- SideRoom&#45;&gt;fountain -->
-<g id="edge12" class="edge"><title>SideRoom&#45;&gt;fountain</title>
-<path fill="none" stroke="black" d="M279,-101.665C279,-96.6867 279,-91.4906 279,-86.5072"/>
-<polygon fill="black" stroke="black" points="275.5,-101.697 279,-111.697 282.5,-101.697 275.5,-101.697"/>
-<polygon fill="black" stroke="black" points="282.5,-86.1043 279,-76.1043 275.5,-86.1044 282.5,-86.1043"/>
+<!-- Chamber&#45;&gt;fountain -->
+<g id="edge12" class="edge"><title>Chamber&#45;&gt;fountain</title>
+<path fill="none" stroke="black" d="M280,-101.665C280,-96.6867 280,-91.4906 280,-86.5072"/>
+<polygon fill="black" stroke="black" points="276.5,-101.697 280,-111.697 283.5,-101.697 276.5,-101.697"/>
+<polygon fill="black" stroke="black" points="283.5,-86.1043 280,-76.1043 276.5,-86.1044 283.5,-86.1043"/>
 </g>
 <!-- fountain&#45;&gt;a -->
 <g id="edge14" class="edge"><title>fountain&#45;&gt;a</title>
-<path fill="none" stroke="black" d="M245.639,-59.4403C204.146,-61.7794 133.593,-71.9042 91,-112 60.5012,-140.71 60,-159.114 60,-201 60,-547 60,-547 60,-547 60,-589.79 65.8022,-640.499 68.5672,-662.236"/>
+<path fill="none" stroke="black" d="M246.465,-59.3867C204.755,-61.6698 133.831,-71.7362 91,-112 60.4813,-140.689 60,-159.114 60,-201 60,-547 60,-547 60,-547 60,-589.79 65.8022,-640.499 68.5672,-662.236"/>
 <polygon fill="black" stroke="black" points="65.1045,-662.748 69.8877,-672.202 72.0438,-661.829 65.1045,-662.748"/>
 </g>
 <!-- aa -->
 <g id="node16" class="node"><title>aa</title>
-<ellipse fill="black" stroke="black" cx="350" cy="-2" rx="1.8" ry="1.8"/>
+<ellipse fill="black" stroke="black" cx="351" cy="-2" rx="1.8" ry="1.8"/>
 </g>
 <!-- fountain&#45;&gt;aa -->
 <g id="edge17" class="edge"><title>fountain&#45;&gt;aa</title>
-<path fill="none" stroke="black" d="M301.465,-39.9141C314.689,-29.8564 330.715,-17.6674 340.636,-10.122"/>
-<polygon fill="black" stroke="black" points="342.927,-12.7768 348.768,-3.93727 338.689,-7.20517 342.927,-12.7768"/>
+<path fill="none" stroke="black" d="M302.465,-39.9141C315.689,-29.8564 331.715,-17.6674 341.636,-10.122"/>
+<polygon fill="black" stroke="black" points="343.927,-12.7768 349.768,-3.93727 339.689,-7.20517 343.927,-12.7768"/>
 </g>
 <!-- GlowingStone -->
 <g id="node15" class="node"><title>GlowingStone</title>
@@ -206,16 +206,16 @@
 <path fill="none" stroke="black" d="M70.9591,-672.213C74.3119,-669.504 85.9075,-660.485 97,-656 157.75,-631.438 231.507,-617.653 283.67,-610.342"/>
 <polygon fill="black" stroke="black" points="284.367,-613.779 293.804,-608.964 283.424,-606.843 284.367,-613.779"/>
 </g>
-<!-- GlowingStone&#45;&gt;SideRoom -->
-<g id="edge22" class="edge"><title>GlowingStone&#45;&gt;SideRoom</title>
-<path fill="none" stroke="black" d="M358.756,-583.977C368.83,-562.778 384,-525.181 384,-491 384,-491 384,-491 384,-273 384,-232.145 384.902,-217.133 361,-184 352.056,-171.602 339.237,-161.361 326.383,-153.297"/>
-<polygon fill="black" stroke="black" points="327.915,-150.137 317.525,-148.062 324.353,-156.163 327.915,-150.137"/>
+<!-- GlowingStone&#45;&gt;Chamber -->
+<g id="edge22" class="edge"><title>GlowingStone&#45;&gt;Chamber</title>
+<path fill="none" stroke="black" d="M358.756,-583.977C368.83,-562.778 384,-525.181 384,-491 384,-491 384,-491 384,-273 384,-232.145 384.809,-217.2 361,-184 351.761,-171.117 338.332,-160.532 325.056,-152.3"/>
+<polygon fill="black" stroke="black" points="326.797,-149.264 316.399,-147.23 323.259,-155.304 326.797,-149.264"/>
 </g>
 <!-- GlowingStone&#45;&gt;aa -->
 <g id="edge16" class="edge"><title>GlowingStone&#45;&gt;aa</title>
-<path fill="none" stroke="black" d="M377.695,-576.757C397.986,-556.201 422,-524.744 422,-491 422,-491 422,-491 422,-129 422,-78.2172 377.365,-29.2918 358.383,-10.7805"/>
+<path fill="none" stroke="black" d="M377.695,-576.757C397.986,-556.201 422,-524.744 422,-491 422,-491 422,-491 422,-129 422,-78.3899 377.985,-29.3653 359.266,-10.8039"/>
 <polygon fill="black" stroke="black" points="375.163,-574.338 370.44,-583.821 380.046,-579.353 375.163,-574.338"/>
-<polygon fill="black" stroke="black" points="360.506,-7.9744 350.809,-3.70644 355.728,-13.0901 360.506,-7.9744"/>
+<polygon fill="black" stroke="black" points="361.458,-8.0587 351.797,-3.70885 356.637,-13.1338 361.458,-8.0587"/>
 </g>
 <!-- GlowingStone&#45;&gt;b -->
 <g id="edge18" class="edge"><title>GlowingStone&#45;&gt;b</title>

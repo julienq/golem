@@ -265,24 +265,4 @@
 
   }, golem.Creatable, golem.Hierarchical, golem.Listenable);
 
-
-  if (typeof require === "function") {
-    var A = golem.Item.create("A");
-    console.log(A.description());
-    var B = golem.Item.create("B").description("Point B");
-    console.log(B.description());
-    var alice = golem.Item.create("Alice").tag("PC");
-    var door = golem.Item.create("door");
-    A.item(alice, door);
-    console.log(A.__children.map(function (item) { return item.description(); }));
-    door.tag("Open");
-    B.item(alice);
-    console.log(A.__children.map(function (item) { return item.description(); }),
-      B.__children.map(function (item) { return item.description(); }));
-    A.listen("item", function (e) {
-      console.log("  + item: %0 (%1)"
-        .fmt(e.source.description(), e.item.description()));
-    }, flags.once);
-  }
-
 }());

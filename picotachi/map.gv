@@ -1,16 +1,16 @@
 digraph deadend {
 
-  node [fontname=Avenir, shape=box];
+  node [fontname=Avenir, shape=box, style=filled, fillcolor="#f8ca00"];
 
-  { rank=same; start [shape=plaintext]; Cave }
+  { rank=same; start [shape=plaintext, style=none]; Cave }
 
   start -> Cave;
   Cave -> Tunnel;
-  Tunnel -> SideRoom [dir=both];
+  Tunnel -> Chamber [dir=both];
   Tunnel -> TreasureRoom [dir=both];
   TreasureRoom -> won;
-  SideRoom -> TreasureRoom [style=dashed];
+  Chamber -> TreasureRoom [style=dashed];
 
-  { rank=same; TreasureRoom; won [shape=plaintext, label="#won"]; }
+  { rank=same; TreasureRoom; won [shape=plaintext, style=none, label="#won"]; }
 
 }

@@ -19,11 +19,11 @@ digraph deadend {
   Tunnel -> cavity [dir=both];
   Tunnel -> door [dir=both];
   DoorOpen -> TreasureRoom;
-  opening -> SideRoom [dir=both];
+  opening -> Chamber [dir=both];
 
   door [label="door+Stone"];
 
-  SideRoom -> fountain [dir=both];
+  Chamber -> fountain [dir=both];
   stone -> a;
   fountain -> a;
   a -> GlowingStone;
@@ -39,13 +39,13 @@ digraph deadend {
   door -> b;
   b [shape=point];
   b -> DoorOpen;
-  GlowingStone -> SideRoom;
+  GlowingStone -> Chamber;
 
   TreasureRoom [style=filled, fillcolor="#f8ca00"];
 
   { DoorOpen [label="door+Stone+Open"]; doorway; }
   
-  SideRoom [style=filled, fillcolor="#f8ca00"];
+  Chamber [style=filled, fillcolor="#f8ca00"];
 
   TreasureRoom -> doorway;
   doorway -> Tunnel;
