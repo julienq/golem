@@ -3,6 +3,7 @@
 
   if (typeof window === "object") {
     window.golem = {};
+    window.global = window;
   } else if (typeof require === "function") {
     global.golem = exports;
   }
@@ -112,6 +113,7 @@
         child.__parent.remove_child(child);
       }
       if (!child.__parent) {
+        child.__parent = this;
         this.will_append_child(child);
         this.__children.push(child);
         this.did_append_child(child);
@@ -234,9 +236,20 @@
 
     tag: function () {
       foreach(arguments, function (tag) {
-        this.tags[tag] = true;
+        if (tag && !this.tags[tag]) {
+          this.tags[tag] = true;
+          this.notify("tag", { tag: tag });
+        }
       }, this);
       return this;
+    },
+
+    untag: function (tag) {
+      if (this.tags[tag]) {
+        delete this.tags[tag];
+        this.notify("untag", { tag: tag });
+        return tag;
+      }
     },
 
     description: function (desc) {

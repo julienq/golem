@@ -1,23 +1,37 @@
-Cave { Alice+PC, Stone, Hole }.
+Cave { Alice+PC, stone, hole }, "A mysterious cave."
 
-  Stone -> +PC { Stone }.
-  +PC@Hole (Tunnel) -> Hole, Tunnel { +PC }.
+Alice -> Alice, "You are Alice, the famous explorer."
+stone -> stone, "A plain looking stone."
+hole -> hole, "There seems to be a dark tunnel below."
 
-Tunnel { Cavity, Door+Stone, Opening }.
+stone, +PC -> +PC { stone }.
+stone, hole (Tunnel) -> Tunnel { stone }, hole.
 
-  Cavity -> Cavity, "You could fit a stone in there."
-  Stone+Glowing, Cavity (Door+Stone) -> Cavity { Stone }, Door+Stone+Open.
-  Stone, Cavity -> Cavity { Stone }.
-  Tunnel { +PC@Opening } (SideRoom) -> Tunnel, SideRoom { +PC, Opening }.
-  +PC@Door+Stone+Open -> Door+Stone+Open, TreasureRoom { +PC }.
++PC@hole (Tunnel) -> hole, Tunnel { +PC }.
 
-SideRoom { Fountain }.
 
-  Fountain -> Fountain, "The water is refreshing."
-  Stone, Fountain -> Stone+Glowing, Fountain.
-  SideRoom { +PC@Opening } (Tunnel) -> SideRoom, Tunnel { +PC, Opening }.
+Tunnel { cavity, door, opening }, "A dark tunnel."
 
-TreasureRoom { Treasure, Doorway }.
+cavity -> cavity, "A small cavity in the rock."
+door -> door, "A massive stone door."
+opening -> opening, "A small opening."
 
-  +PC@Doorway -> Doorway, Tunnel { +PC }.
-  Treasure -> +PC { Treasure } #won.
+stone+Glowing, cavity (door) -> cavity+Glowing, door+Open.
+stone, cavity -> cavity+Filled.
+
+Tunnel { +PC@opening } (Chamber) -> Tunnel, Chamber { +PC, opening+Reversed }.
++PC@door+Open (TreasureRoom) -> door+Open, TreasureRoom { +PC }.
+
+
+Chamber { fountain }, "A small chamber."
+
+fountain -> fountain, "The water is refreshing."
+stone, fountain -> stone+Glowing, fountain, "The stone now emits a warm glow."
+Chamber { +PC@opening+Reversed } (Tunnel) -> Chamber, Tunnel { +PC, opening }.
+
+
+TreasureRoom { treasure, doorway }, "Finally, the treasure room."
+
+treasure -> treasure, "The coveted idol will bring you fame and fortune."
++PC@doorway (Tunnel) -> doorway, Tunnel { +PC }.
+treasure -> +PC { treasure } #won.

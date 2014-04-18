@@ -6,52 +6,52 @@ digraph deadend {
   { rank=same; start [shape=plaintext]; Cave [style=filled, fillcolor="#f8ca00"]; }
 
   start -> Cave;
-  Cave -> Stone;
-  Cave -> Hole [color="#a61416"];
-  Stone -> Hole;
-  Stone -> c [style=dashed, color="#a61416"];
-  Cavity -> c;
+  Cave -> stone [dir=both];
+  Cave -> hole [color="#a61416"];
+  stone -> c [color="#a61416"];
+  cavity -> c [dir=both];
   c [shape=point];
-  c -> Nothing;
-  Nothing [shape=plaintext, label="(nothing)"];
-  Hole -> Tunnel;
-  
+  hole -> Tunnel;
+
   Tunnel [style=filled, fillcolor="#f8ca00"];
 
-  Tunnel -> Opening;
-  Tunnel -> Cavity;
-  Cavity -> Tunnel;
+  Tunnel -> opening [dir=both];
+  Tunnel -> cavity [dir=both];
+  Tunnel -> door [dir=both];
   DoorOpen -> TreasureRoom;
-  Opening -> SideRoom;
+  opening -> SideRoom [dir=both];
 
-  SideRoom -> Opening;
-  Opening -> Tunnel;
-  SideRoom -> Fountain;
-  Fountain -> SideRoom;
-  Stone -> a [style=dashed];
-  Fountain -> a [style=dashed];
+  door [label="door+Stone"];
+
+  SideRoom -> fountain [dir=both];
+  stone -> a;
+  fountain -> a;
   a -> GlowingStone;
+  GlowingStone -> aa [dir=both];
+  fountain -> aa;
   a [shape=point];
+  aa [shape=point];
 
-  GlowingStone [label="Stone+Glowing"];
+  GlowingStone [label="stone+Glowing"];
 
-  GlowingStone -> b [style=dashed];
-  Cavity -> b [style=dashed];
+  GlowingStone -> b;
+  cavity -> b;
+  door -> b;
   b [shape=point];
   b -> DoorOpen;
   GlowingStone -> SideRoom;
 
   TreasureRoom [style=filled, fillcolor="#f8ca00"];
 
-  { rank=same; DoorOpen [label="Door+Stone+Open"]; Doorway; }
+  { DoorOpen [label="door+Stone+Open"]; doorway; }
   
   SideRoom [style=filled, fillcolor="#f8ca00"];
 
-  TreasureRoom -> Doorway;
-  Doorway -> Tunnel;
-  TreasureRoom -> Treasure;
-  Treasure -> won;
+  TreasureRoom -> doorway;
+  doorway -> Tunnel;
+  TreasureRoom -> treasure;
+  treasure -> won;
 
-  { rank=same; won [shape=plaintext, label="#won"]; Treasure }
+  { won [shape=plaintext, label="#won"]; treasure }
 
 }
