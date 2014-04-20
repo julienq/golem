@@ -1,0 +1,7 @@
+Point A { Alice+PC, bird, road }.
+Point B.
+
++PC -> 1, "It’s you!"
+road -> 1, "It seems to lead to Point B."
+bird -> "You scared the bird away."
++PC@road; Point B -> 2, 3 { 1 }.

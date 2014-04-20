@@ -12,7 +12,9 @@
 
   var flags = {
     asynchronous: false,
+    negative: true,
     once: true,
+    set_unfinished: true,
     synchronous: true,
   };
 
@@ -64,7 +66,7 @@
   function nop() {}
 
   // Extend a prototype object with methods from an additional object.
-  function extend (prototype, ext) {
+  function extend(prototype, ext) {
     var object = Object.create(prototype);
     for (var p in ext) {
       object[p] = ext[p];
@@ -214,6 +216,7 @@
   // Base class for items (including locations)
   golem.Item = mixin({
 
+    // Create a new item with the given name.
     init: function (name) {
       golem.Listenable.init.call(this);
       golem.Hierarchical.init.call(this);
@@ -221,29 +224,37 @@
       this.tags = {};
     },
 
-    item: function (item) {
+    // Add items as a child of this item and return the item.
+    item: function () {
       foreach(arguments, this.append_child.bind(this));
       return this;
     },
 
+    // Notification for adding a child item.
     did_append_child: function (child) {
       this.notify("item", { item: child });
     },
 
+    // Notification for removing a child item.
     did_remove_child: function (child) {
       this.notify("unitem", { item: child });
     },
 
+    // Add tags to an item and return this item.
     tag: function () {
       foreach(arguments, function (tag) {
-        if (tag && !this.tags[tag]) {
-          this.tags[tag] = true;
+        if (typeof tag === "string") {
+          tag = Tag.tag(tag);
+        }
+        if (tag && !this.tags[tag.name]) {
+          this.tags[tag.name] = tag.item(this);
           this.notify("tag", { tag: tag });
         }
       }, this);
       return this;
     },
 
+    // Remove a tag from an item and return it if it was indeed removed.
     untag: function (tag) {
       if (this.tags[tag]) {
         delete this.tags[tag];
@@ -256,14 +267,88 @@
       if (arguments.length === 0) {
         return this._description ||
           this.name + Object.keys(this.tags).map(function (tag) {
-            return "+" + tag;
+            return tag.toString();
           }).join("");
       }
       this._description = desc;
       return this;
+    },
+
+    // Match a pattern item.
+    match: function (pattern) {
+      var m = !pattern.name || pattern.name === this.name;
+      return m;
     }
 
   }, golem.Creatable, golem.Hierarchical, golem.Listenable);
+
+  // Get the location of an item. A location is simply an item with no parent.
+  Object.defineProperty(golem.Item, "location", {
+    enumerable: true,
+    configurable: true,
+    get: function () {
+      return this.__parent && this.__parent.location || this;
+    }
+  });
+
+
+  // The tag object keeps track of all items that have this tag. A tag can be
+  // negative as well.
+  var Tag = golem.Tag = mixin({
+
+    // Keep track of all tags
+    tags: {},
+
+    // Initialize a new tag with the given name and no item.
+    init: function (name) {
+      this.name = name;
+      this.items = {};
+    },
+
+    // Return the tag for the given name, creating it if necessary.
+    tag: function (name) {
+      if (!this.tags[name]) {
+        this.tags[name] = this.create(name);
+      }
+      return this.tags[name];
+    },
+
+    // Add an item to the tag and return the tag (when this item is tagged.)
+    item: function (item) {
+      if (!this.items[item.name]) {
+        this.items[item.name] = [];
+      }
+      this.items[item.name].push(item);
+      return this;
+    },
+
+    // Remove an item from the tag and return the tag (when the item is
+    // untagged.)
+    unitem: function (item) {
+      var items = this.items[item.name];
+      var index = items && items.indexOf(item);
+      if (index >= 0) {
+        if (items.length === 1) {
+          delete this.items[item.name];
+        } else {
+          items.splice(index, 1);
+        }
+        return this;
+      }
+    },
+
+    toString: function () {
+      return "+" + this.name;
+    }
+  }, golem.Creatable);
+
+  // Negative tag for pattern matching.
+  var Untag = golem.Untag = extend(Tag, {
+    negative: true,
+    toString: function () {
+      return "-" + this.name;
+    }
+  });
 
 
   if (typeof require === "function") {
