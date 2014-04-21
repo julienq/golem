@@ -351,6 +351,18 @@
   });
 
 
+  var Automaton = golem.Automaton = mixin({
+
+    symbols: { ",": true, "{": true, "}": true, ";": true },
+
+    init: function () {
+      this.states = [];
+      this.symbols = Object.create(this.symbols);
+    }
+
+  }, golem.Creatable);
+
+
   if (typeof require === "function") {
     var A = golem.Item.create("A");
     console.log(A.description());

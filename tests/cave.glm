@@ -1,0 +1,30 @@
+Cave { Alice+PC, stone, hole }, "A mysterious cave."
+
+  Alice: "You are Alice, the famous explorer."
+  stone: "A plain looking stone."
+  hole: "There seems to be a dark tunnel below."
+  stone, +PC: 2 { 1 }.
+  stone, hole; Tunnel: 3 { 1 }.
+  +PC, hole; Tunnel: 3 { 1 }.
+
+Tunnel { cavity, door, opening }, "A dark tunnel."
+
+  cavity: "A small cavity in the rock."
+  door: "A massive stone door."
+  opening: "A small opening."
+  stone+Glowing, cavity; door: -1, 2+Glowing, 3+Open.
+  stone, cavity: -1, 2+Filled.
+  +PC, opening; Chamber: 3 { 1, 2+Reversed }.
+  +PC, door+Open; TreasureRoom: 3 { 1 }.
+
+Chamber { fountain }, "A small chamber."
+
+  fountain: "The water is refreshing."
+  stone, fountain: 1+Glowing, "The stone now emits a warm glow."
+  +PC, opening+Reversed; Tunnel: 3 { 1, 2-Reversed }.
+
+TreasureRoom { treasure, doorway }, "Finally, the treasure room."
+
+  treasure: "The coveted idol will bring you fame and fortune."
+  treasure, +PC: 2 { 1 } #won.
+  +PC, doorway; Tunnel: 3 { 1 }.
