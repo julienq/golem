@@ -5,106 +5,125 @@ digraph cave {
   edge [fontname=Inconsolata];
 
   s0 [label="0"];
-  s1 [label="1", shape=doublecircle];
+  s1 [label="1"];
   s0 -> s1 [label="Alice"];
-  fs [shape=point, color="#ff6a4d"];
-  s1 -> fs [label="/0", color="#ff6a4d"];
+  fs0 [shape=point, color="#ff6a4d"];
+  s1 -> fs0 [label="/0", color="#ff6a4d"];
 
-  s2 [label="2", shape=doublecircle];
+  s2 [label="2"];
   s0 -> s2 [label="stone"];
-  s2 -> fs [label="/1", color="#ff6a4d"];
+  fs1 [shape=point, color="#ff6a4d"];
+  s2 -> fs1 [label="/1", color="#ff6a4d"];
 
-  s3 [label="3", shape=doublecircle];
+  s3 [label="3"];
   s0 -> s3 [label="hole"];
-  s3 -> fs [label="/2", color="#ff6a4d"];
+  fs2 [shape=point, color="#ff6a4d"];
+  s3 -> fs2 [label="/2", color="#ff6a4d"];
 
   s4 [label="4"];
-  s2 -> s4 [label=","];
-  s5 [label="5", shape=doublecircle];
-  s4 -> s5 [label="+PC"];
-  s5 -> fs [label="2 { 1 }/3", color="#ff6a4d"];
+  s2 -> s4 [color="#4dbce9"];
+  s5 [label="5"];
+  s4 -> s5 [label="+PC", color="#5eb26b"];
+  fs3 [shape=point, color="#ff6a4d"];
+  s5 -> fs3 [label="2{1}/3", color="#ff6a4d"];
 
   s6 [label="6"];
-  s4 -> s6 [label="hole/4"];
+  s4 -> s6 [label="hole"];
   s7 [label="7"];
-  s6 -> s7 [label=";"];
-  s8 [label="8", shape=doublecircle];
+  s6 -> s7 [color="#ad2bad"];
+  s8 [label="8"];
   s7 -> s8 [label="Tunnel"];
-  s8 -> fs [label="3 { 1 }", color="#ff6a4d"];
+  fs4 [shape=point, color="#ff6a4d"];
+  s8 -> fs4 [label="3{1}/4", color="#ff6a4d"];
 
   s9 [label="9"];
-  s0 -> s9 [label="+PC"];
+  s0 -> s9 [label="+PC", color="#5eb26b"];
   s10 [label="10"];
-  s9 -> s10 [label=","];
-  s10 -> s6 [label="hole/5"];
+  s9 -> s10 [color="#4dbce9"];
+  s10 -> s6 [label="hole/1"];
 
 
-  s11 [label="11", shape=doublecircle];
+  s11 [label="11"];
   s0 -> s11 [label="cavity"];
-  s11 -> fs [label="/6", color="#ff6a4d"];
+  fs5 [shape=point, color="#ff6a4d"];
+  s11 -> fs5 [label="/6", color="#ff6a4d"];
 
-  s12 [label="12", shape=doublecircle];
+  s12 [label="12"];
   s0 -> s12 [label="door"];
-  s12 -> fs [label="/7", color="#ff6a4d"];
+  fs6 [shape=point, color="#ff6a4d"];
+  s12 -> fs6 [label="/7", color="#ff6a4d"];
 
-  s13 [label="13", shape=doublecircle];
+  s13 [label="13"];
   s0 -> s13 [label="opening"];
-  s13 -> fs [label="/8", color="#ff6a4d"];
+  fs7 [shape=point, color="#ff6a4d"];
+  s13 -> fs7 [label="/8", color="#ff6a4d"];
 
   s14 [label="14"];
-  s2 -> s14 [label="+Glowing"];
+  s2 -> s14 [label="+Glowing", color="#5eb26b"];
   s15 [label="15"];
-  s14 -> s15 [label=","];
-  s16 [label="16", shape=doublecircle];
+  s14 -> s15 [color="#4dbce9"];
+  s16 [label="16"];
   s15 -> s16 [label="cavity"];
-  s16 -> fs [label="-1, 2+Glowing, 3+Open/9", color="#ff6a4d"];
-
-  s17 [label="17", shape=doublecircle];
-  s4 -> s17 [label="cavity"];
-  s17 -> fs [label="-1, 2+Filled/10", color="#ff6a4d"];
-
+  s17 [label="17"];
+  s16 -> s17 [color="#ad2bad"];
   s18 [label="18"];
-  s10 -> s18 [label="opening"];
+  s17 -> s18 [label="door"];
+  fs8 [shape=point, color="#ff6a4d"];
+  s18 -> fs8 [label="-1,2+Glowing,3+Open/9", color="#ff6a4d"];
+
   s19 [label="19"];
-  s18 -> s19 [label=";"];
-  s20 [label="20", shape=doublecircle];
-  s19 -> s20 [label="Chamber"];
-  s20 -> fs [label="3 { 1, 2+Reversed }/10", color="#ff6a4d"];
+  s4 -> s19 [label="cavity"];
+  fs9 [shape=point, color="#ff6a4d"];
+  s19 -> fs9 [label="-1,2+Filled/10", color="#ff6a4d"];
 
+  s20 [label="20"];
+  s10 -> s20 [label="opening"];
   s21 [label="21"];
-  s10 -> s21 [label="door"];
+  s20 -> s21 [color="#ad2bad"];
   s22 [label="22"];
-  s21 -> s22 [label="+Open"];
+  s21 -> s22 [label="Chamber"];
+  fs10 [shape=point, color="#ff6a4d"];
+  s22 -> fs10 [label="3{1,2+Reversed}/11", color="#ff6a4d"];
+
   s23 [label="23"];
-  s22 -> s23 [label=";"];
-  s23 -> s8 [label="TreasureRoom/11"];
-
-  s24 [label="24", shape=doublecircle];
-  s0 -> s24 [label="fountain"];
-  s24 -> fs [label="/12", color="#ff6a4d"];
-
-  s25 [label="25", shape=doublecircle];
-  s4 -> s25 [label="fountain"];
-  s25 -> fs [label="1+Glowing/12", color="#ff6a4d"];
+  s10 -> s23 [label="door"];
+  s24 [label="24"];
+  s23 -> s24 [label="+Open", color="#5eb26b"];
+  s25 [label="25"];
+  s24 -> s25 [color="#ad2bad"];
+  s25 -> s8 [label="TreasureRoom/8"];
 
   s26 [label="26"];
-  s18 -> s26 [label="+Reversed"];
+  s0 -> s26 [label="fountain"];
+  fs11 [shape=point, color="#ff6a4d"];
+  s26 -> fs11 [label="/13", color="#ff6a4d"];
+
   s27 [label="27"];
-  s26 -> s27 [label=";"];
-  s28 [label="28", shape=doublecircle];
-  s27 -> s28 [label="Tunnel"];
-  s28 -> fs [label="3 { 1, 2-Reversed }/13", color="#ff6a4d"];
+  s4 -> s27 [label="fountain"];
+  fs12 [shape=point, color="#ff6a4d"];
+  s27 -> fs12 [label="1+Glowing/14", color="#ff6a4d"];
 
-
-  s29 [label="29", shape=doublecircle];
-  s0 -> s29 [label="treasure"];
-  s29 -> fs [label="/14", color="#ff6a4d"];
-
+  s28 [label="28"];
+  s20 -> s28 [label="+Reversed", color="#5eb26b"];
+  s29 [label="29"];
+  s28 -> s29 [color="#ad2bad"];
   s30 [label="30"];
-  s29 -> s30 [label=","];
-  s31 [label="31", shape=doublecircle];
-  s30 -> s31 [label="+PC"];
-  s31 -> fs [label="2 { 1 } #won/15", color="#ff6a4d"];
+  s29 -> s30 [label="Tunnel"];
+  fs13 [shape=point, color="#ff6a4d"];
+  s30 -> fs13 [label="3{1,2-Reversed}/15", color="#ff6a4d"];
 
-  s10 -> s6 [label="doorway/16"];
+
+  s31 [label="31"];
+  s0 -> s31 [label="treasure"];
+  fs14 [shape=point, color="#ff6a4d"];
+  s31 -> fs14 [label="/16", color="#ff6a4d"];
+
+  s32 [label="32"];
+  s31 -> s32 [color="#4dbce9"];
+  s33 [label="33"]
+  s32 -> s33 [label="+PC", color="#5eb26b"];
+  fs15 [shape=point, color="#ff6a4d"];
+  s33 -> fs15 [label="2{1}#won/17", color="#ff6a4d"];
+
+  s10 -> s6 [label="doorway/14"];
 }

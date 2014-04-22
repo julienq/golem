@@ -351,35 +351,121 @@
   });
 
 
-  var Automaton = golem.Automaton = mixin({
-
-    symbols: { ",": true, "{": true, "}": true, ";": true },
+  golem.Automaton = mixin({
 
     init: function () {
       this.states = [];
-      this.symbols = Object.create(this.symbols);
+      this.state();
+    },
+
+    state: function () {
+      var state = golem.State.create();
+      state.automaton = this;
+      this.states.push(state);
+      return state;
     }
 
   }, golem.Creatable);
 
 
-  if (typeof require === "function") {
-    var A = golem.Item.create("A");
-    console.log(A.description());
-    var B = golem.Item.create("B").description("Point B");
-    console.log(B.description());
-    var alice = golem.Item.create("Alice").tag("PC");
-    var door = golem.Item.create("door");
-    A.item(alice, door);
-    console.log(A.__children.map(function (item) { return item.description(); }));
-    door.tag("Open");
-    B.item(alice);
-    console.log(A.__children.map(function (item) { return item.description(); }),
-      B.__children.map(function (item) { return item.description(); }));
-    A.listen("item", function (e) {
-      console.log("  + item: %0 (%1)"
-        .fmt(e.source.description(), e.item.description()));
-    }, flags.once);
+  // Automaton states maintain their list of incoming and outgoing edges,
+  // indexed by the symbol on the edge. A final state also has an action.
+  golem.State = mixin({
+
+    init: function () {
+      this.incoming = [];
+      this.outgoing = [];
+    },
+
+    out: function (edge) {
+      this.outgoing.push(edge);
+      console.log("Outgoing edge from s%0 (%1)"
+        .fmt(this.automaton.states.indexOf(this), this.outgoing.length));
+      edge.source = this;
+      return edge.dest;
+    }
+
+  }, golem.Creatable);
+
+
+  golem.Edge = mixin({
+    init: function (dest, weight) {
+      this.dest = dest;
+      dest.incoming.push(this);
+      this.weight = weight || 0;
+    }
+  }, golem.Creatable);
+
+
+  golem.NameEdge = extend(golem.Edge, {
+    init: function (label, dest, weight) {
+      this.label = label;
+      golem.Edge.init.call(this, dest, weight);
+    }
+  });
+
+
+  golem.TagEdge = extend(golem.Edge, {
+    init: function (tag, dest, weight) {
+      this.tag = tag;
+      golem.Edge.init.call(this, dest, weight);
+    }
+  });
+
+
+  golem.CommaEdge = extend(golem.Edge, {
+  });
+
+
+  golem.SemicolonEdge = extend(golem.Edge, {
+  });
+
+
+  // An effect edge has no destination and can be followed iff there is no input
+  // left to match.
+  golem.EffectEdge = extend(golem.Edge, {
+    init: function (effect, weight) {
+      this.weight = weight || 0;
+    }
+  });
+
+
+  // Effect functions
+  function status(msg) {
+    return function() {
+      // TODO
+    }
   }
+
+
+  function move(x, y) {
+    return function () {
+      // TODO
+    }
+  }
+
+  // Test automaton
+  var automaton = golem.Automaton.create();
+
+  automaton.states[0]
+    .out(golem.NameEdge.create("Alice", automaton.state()))
+    .out(golem.EffectEdge.create(status("You are Alice, the famous explorer.")));
+
+  automaton.states[0]
+    .out(golem.NameEdge.create("stone", automaton.state()))
+    .out(golem.EffectEdge.create(status("A plain looking stone", 1)));
+  
+  automaton.states[0]
+    .out(golem.NameEdge.create("hole", automaton.state()))
+    .out(golem.EffectEdge.create(status("There seems to be a dark tunnel below."),
+          2));
+
+  automaton.states[2]
+    .out(golem.CommaEdge.create(automaton.state()))
+    .out(golem.TagEdge.create("+PC", automaton.state()))
+    .out(golem.EffectEdge.create(move(2, 1), 3));
+
+  console.log(automaton);
+
 
 }());
