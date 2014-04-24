@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Golem</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="cache-control" content="no-cache">
+    <link rel="stylesheet" href="../golem.css">
+  </head>
+  <body>
+    <div id="status"></div>
+    <div id="location"></div>
+    <p>Inventory</p>
+    <div id="inventory"></div>
+    <script src="../golem.js"></script>
+    <script src="../ui.js"></script>
+    <script>
+"use strict";
+
+var Alice = golem.Item.create("Alice").tag("PC").img();
+var Cave = golem.Item.create("Cave").description("A mysterious cave.")
+  .item(Alice)
+  .item(golem.Item.create("stone").img())
+  .item(golem.Item.create("hole").img());
+var Tunnel = golem.Item.create("Tunnel").description("A dark tunnel.")
+  .item(golem.Item.create("cavity").img())
+  .item(golem.Item.create("door").img())
+  .item(golem.Item.create("opening").img());
+var Chamber = golem.Item.create("Chamber").description("A small chamber.")
+  .item(golem.Item.create("fountain").img());
+
+
+var automaton = golem.Automaton.create();
+
+automaton.states[0]
+  .out(golem.NameEdge.create("Alice", automaton.state()))
+  .out(golem.EffectEdge.create(golem
+    .status("You are Alice, the famous explorer.")));
+
+automaton.states[0]
+  .out(golem.NameEdge.create("stone", automaton.state()))
+  .out(golem.EffectEdge.create(golem.status("A plain looking stone"), 1));
+
+automaton.states[0]
+  .out(golem.NameEdge.create("hole", automaton.state()))
+  .out(golem.EffectEdge.create(golem
+    .status("There seems to be a dark tunnel below."), 2));
+
+automaton.states[2]
+  .out(golem.CommaEdge.create(automaton.state()))
+  .out(golem.TagEdge.create("+PC", automaton.state()))
+  .out(golem.EffectEdge.create(golem.move(2, 1), 3));
+
+automaton.states[4]
+  .out(golem.NameEdge.create("hole", automaton.state()))
+  .out(golem.SemicolonEdge.create(automaton.state()))
+  .out(golem.NameEdge.create("Tunnel", automaton.state()))
+  .out(golem.EffectEdge.create(golem.move(3, 1), 4));
+
+automaton.states[0]
+  .out(golem.TagEdge.create("+PC", automaton.state()))
+  .out(golem.CommaEdge.create(automaton.state()))
+  .out(golem.NameEdge.create("hole", automaton.states[6], 1));
+
+automaton.states[0]
+  .out(golem.NameEdge.create("cavity", automaton.state()))
+  .out(golem.EffectEdge.create(golem.status("A small cavity in the rock."), 6));
+
+automaton.states[0]
+  .out(golem.NameEdge.create("door", automaton.state()))
+  .out(golem.EffectEdge.create(golem.status("A massive stone door."), 7));
+
+automaton.states[0]
+  .out(golem.NameEdge.create("opening", automaton.state()))
+  .out(golem.EffectEdge.create(golem.status("A small opening."), 8));
+
+automaton.states[2]
+  .out(golem.TagEdge.create("+Glowing", automaton.state()))
+  .out(golem.CommaEdge.create(automaton.state()))
+  .out(golem.NameEdge.create("cavity", automaton.state()))
+  .out(golem.SemicolonEdge.create(automaton.state()))
+  .out(golem.NameEdge.create("door", automaton.state()))
+  .out(golem.EffectEdge.create(golem.seq(
+    golem.remove(1),
+    golem.add_tag(2, "Glowing"),
+    golem.add_tag(3, "Open")), 9));
+
+automaton.states[4]
+  .out(golem.NameEdge.create("cavity", automaton.state()))
+  .out(golem.EffectEdge.create(golem.seq(golem.remove(1),
+    golem.add_tag(2, "Filled")), 10));
+
+automaton.states[10]
+  .out(golem.NameEdge.create("opening", automaton.state()))
+  .out(golem.SemicolonEdge.create(automaton.state()))
+  .out(golem.NameEdge.create("Chamber", automaton.state()))
+  .out(golem.EffectEdge.create(golem.seq(
+    golem.move(3, 1),
+    golem.move(3, 2),
+    golem.add_tag(2, "Reversed")), 11));
+
+automaton.states[10]
+  .out(golem.NameEdge.create("door", automaton.state()))
+  .out(golem.TagEdge.create("+Open", automaton.state()))
+  .out(golem.SemicolonEdge.create(automaton.state()))
+  .out(golem.NameEdge.create("TreasureRoom", automaton.states[8], 14));
+
+automaton.states[0]
+  .out(golem.NameEdge.create("fountain", automaton.state()))
+  .out(golem.EffectEdge.create(golem.status("A small opening."), 13));
+
+golem.ui.show_location(automaton, Cave);
+
+console.log(automaton.toString());
+
+    </script>
+  </body>
+</html>

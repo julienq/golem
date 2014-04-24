@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  /* global console, exports, global, golem, require, window */
+
   if (typeof window === "object") {
     window.golem = {};
     window.global = window;
@@ -216,12 +218,18 @@
   // Base class for items (including locations)
   golem.Item = mixin({
 
+    items: {},
+
     // Create a new item with the given name.
     init: function (name) {
       golem.Listenable.init.call(this);
       golem.Hierarchical.init.call(this);
       this.name = name;
       this.tags = {};
+      if (!this.items[name]) {
+        this.items[name] = [];
+      }
+      this.items[name].push(this);
     },
 
     // Add items as a child of this item and return the item.
@@ -265,13 +273,16 @@
 
     description: function (desc) {
       if (arguments.length === 0) {
-        return this._description ||
-          this.name + Object.keys(this.tags).map(function (tag) {
-            return tag.toString();
-          }).join("");
+        return this._description || this.toString();
       }
       this._description = desc;
       return this;
+    },
+
+    toString: function () {
+      return this.name + Object.keys(this.tags).sort().map(function (tag) {
+        return this.tags[tag].toString();
+      }, this).join("");
     },
 
     // Match a pattern item.
@@ -363,6 +374,41 @@
       state.automaton = this;
       this.states.push(state);
       return state;
+    },
+
+    toString: function () {
+      return "digraph automaton {\n" +
+        "  rankdir=LR;\n" +
+        "  node [shape=circle, fontname=Avenir];\n" +
+        "  edge [fontname=Avenir]\n" +
+        "  sink [shape=point, color=\"#ff6a4d\"];\n" +
+        this.states.map(function (state, i) {
+          return "  %0\n".fmt(state.toString(i)) +
+            state.outgoing.map(function (edge) {
+              return "  " + edge.toString(i);
+            }).join("\n");
+        }).join("\n") +
+        "\n}";
+    },
+
+    apply: function (item, target) {
+      console.log("Apply: %0 (%1)".fmt(item, target));
+      var items = [item];
+      if (target) {
+        items.push(target);
+      }
+      var paths = this.states[0].apply(items, []);
+      console.log("  paths:", paths);
+      if (paths.length > 0) {
+        var p = { weight: Infinity };
+        paths.forEach(function (path) {
+          if (path.weight < p.weight) {
+            p = path;
+          }
+        });
+        console.log("  Minimal weight:", p);
+        p.effect(this, p.items);
+      }
     }
 
   }, golem.Creatable);
@@ -379,10 +425,26 @@
 
     out: function (edge) {
       this.outgoing.push(edge);
-      console.log("Outgoing edge from s%0 (%1)"
-        .fmt(this.automaton.states.indexOf(this), this.outgoing.length));
       edge.source = this;
       return edge.dest;
+    },
+
+    toString: function (i) {
+      return "s%0 [label=\"%0\"];".fmt(i);
+    },
+
+    apply: function (items, paths) {
+      if (paths.length === 0) {
+        paths = [{ weight: 0, items: [] }];
+      }
+      var paths_ = [];
+      this.outgoing.forEach(function (edge) {
+        var paths__ = edge.follow(items, paths.slice());
+        if (paths__) {
+          Array.prototype.push.apply(paths_, paths__);
+        }
+      });
+      return paths_;
     }
 
   }, golem.Creatable);
@@ -393,79 +455,171 @@
       this.dest = dest;
       dest.incoming.push(this);
       this.weight = weight || 0;
+    },
+
+    toString: function (i, j, label, args) {
+      var extra = "";
+      if (args) {
+        Object.keys(args).forEach(function (arg) {
+          extra += ", %0=\"%1\"".fmt(arg, args[arg]);
+        });
+      }
+      return "s%0 -> s%1 [label=\"%2%3\"%4]"
+        .fmt(i, j, label, this.weight ? "/" + this.weight : "", extra);
     }
   }, golem.Creatable);
 
 
   golem.NameEdge = extend(golem.Edge, {
-    init: function (label, dest, weight) {
-      this.label = label;
+    init: function (name, dest, weight) {
+      this.name = name;
       golem.Edge.init.call(this, dest, weight);
+    },
+
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i,
+        this.dest.automaton.states.indexOf(this.dest), this.name);
+    },
+
+    // Follow this edge if the the current item has the right name, or there is
+    // an item with that name in the world (after a semicolon)
+    follow: function (items, paths) {
+      var item = (items[0] && items[0].name === this.name && items[0]) ||
+        (items.length === 0 && golem.Item.items[this.name] &&
+         golem.Item.items[this.name][0]);
+      if (item) {
+        if (items.length === 0) {
+          items.push(item);
+        }
+        paths.forEach(function (path) {
+          path.weight += this.weight;
+          console.log("s%0 -> s%1 matched %2 for %3, weight = %4"
+              .fmt(this.source.automaton.states.indexOf(this.source),
+                this.dest.automaton.states.indexOf(this.dest),
+                item, this.name, path.weight));
+        }, this);
+        return this.dest.apply(items, paths);
+      }
     }
   });
 
 
   golem.TagEdge = extend(golem.Edge, {
     init: function (tag, dest, weight) {
-      this.tag = tag;
+      this.p = tag[0] === "+";
+      this.tag = tag.slice(1);
       golem.Edge.init.call(this, dest, weight);
+    },
+
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i,
+        this.dest.automaton.states.indexOf(this.dest), this.tag,
+          { color: "#5eb26b" });
+    },
+
+    // Follow this edge if the current item has (or does not have) the tag
+    follow: function (items, paths) {
+      if (items[0] && !!items[0].tags[this.tag] === this.p) {
+        paths.forEach(function (path) {
+          path.weight += this.weight;
+          console.log("s%0 -> s%1 matched %2 for tag %3, weight = %4"
+              .fmt(this.source.automaton.states.indexOf(this.source),
+                this.dest.automaton.states.indexOf(this.dest),
+                items[0], this.tag, path.weight));
+        }, this);
+        return this.dest.apply(items, paths);
+      }
     }
   });
 
 
   golem.CommaEdge = extend(golem.Edge, {
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i,
+        this.dest.automaton.states.indexOf(this.dest), "",
+          { color: "#4dbce9" });
+    },
+
+    // Follow this edge if there is another item to match
+    follow: function (items, paths) {
+      if (items.length < 1) {
+        return;
+      }
+      var item = items[0];
+      paths.forEach(function (path) {
+        path.items.push(item);
+        path.weight += this.weight;
+        console.log("s%0 -> s%1 pushed %2, weight = %3"
+            .fmt(this.source.automaton.states.indexOf(this.source),
+              this.dest.automaton.states.indexOf(this.dest),
+              item, path.weight));
+      }, this);
+      return this.dest.apply(items.slice(1), paths);
+    }
   });
 
 
   golem.SemicolonEdge = extend(golem.Edge, {
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i,
+        this.dest.automaton.states.indexOf(this.dest), "",
+          { color: "#ad2bad" });
+    },
+
+    // Follow this edge if there are no more items to match, pushing the last
+    // item.
+    follow: function (items, paths) {
+      if (items.length > 1) {
+        return;
+      }
+      paths.forEach(function (path) {
+        if (items.length === 1) {
+          path.items.push(items[0]);
+        }
+        path.weight += this.weight;
+        console.log("s%0 -> s%1 pushed %2, weight = %3; no more items"
+            .fmt(this.source.automaton.states.indexOf(this.source),
+              this.dest.automaton.states.indexOf(this.dest),
+              items[0], path.weight));
+      }, this);
+      return this.dest.apply([], paths);
+    }
   });
 
 
   // An effect edge has no destination and can be followed iff there is no input
   // left to match.
   golem.EffectEdge = extend(golem.Edge, {
+
+    // Initialize the edge with an effect and a weight. Note that there is no
+    // destination state for these edges.
     init: function (effect, weight) {
+      this.effect = effect;
       this.weight = weight || 0;
+    },
+
+    // Go to a sink state (TODO: individual final states)
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i, "ink", "", { color: "#ff6a4d" });
+    },
+
+    // Follow this edge if there are no more items to match, pushing the last
+    // item to the paths when necessary, and adding an action.
+    follow: function (items, paths) {
+      if (items.length > 1) {
+        return;
+      }
+      console.log("s%0 has effect, weight = %1"
+        .fmt(this.source.automaton.states.indexOf(this.source), this.weight));
+      paths.forEach(function (path) {
+        if (items.length === 1) {
+          path.items.push(items[0]);
+        }
+        path.weight += this.weight;
+        path.effect = this.effect;
+      }, this);
+      return paths;
     }
   });
-
-
-  // Effect functions
-  function status(msg) {
-    return function() {
-      // TODO
-    }
-  }
-
-
-  function move(x, y) {
-    return function () {
-      // TODO
-    }
-  }
-
-  // Test automaton
-  var automaton = golem.Automaton.create();
-
-  automaton.states[0]
-    .out(golem.NameEdge.create("Alice", automaton.state()))
-    .out(golem.EffectEdge.create(status("You are Alice, the famous explorer.")));
-
-  automaton.states[0]
-    .out(golem.NameEdge.create("stone", automaton.state()))
-    .out(golem.EffectEdge.create(status("A plain looking stone", 1)));
-  
-  automaton.states[0]
-    .out(golem.NameEdge.create("hole", automaton.state()))
-    .out(golem.EffectEdge.create(status("There seems to be a dark tunnel below."),
-          2));
-
-  automaton.states[2]
-    .out(golem.CommaEdge.create(automaton.state()))
-    .out(golem.TagEdge.create("+PC", automaton.state()))
-    .out(golem.EffectEdge.create(move(2, 1), 3));
-
-  console.log(automaton);
-
 
 }());

@@ -1,0 +1,15 @@
+body {
+  background-color: #f8f9f0;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 24pt;
+  margin: 2rem;
+}
+
+.drag {
+  opacity: 0.5;
+  cursor: none;
+}
+
+img {
+  width: 240px;
+}
