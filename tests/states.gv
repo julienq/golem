@@ -1,0 +1,66 @@
+digraph rules {
+  node [shape=box, fontname=Avenir];
+  edge [fontname=Avenir];
+
+  r1r2r3 [label="r1, r2, r3"];
+  r1r2r3 -> r3 [label="r1\ntake stone"];
+  r1r2r3 -> r3b [label="r2\nstone in tunnel"];
+  r1r2r3 -> r6 [label="r3\npc in tunnel", color="#a61416"];
+
+  r3 [label="r3"];
+  r3 -> r5r6 [label="r3\npc in tunnel"];
+
+  r5r6 [label="r5, r6"];
+  r5r6 -> r6 [label="r5\nstone in cavity", color="#a61416"];
+  r5r6 -> r8r9 [label="r6\npc in chamber"];
+
+  r6 [label="r6"];
+  r6 -> r9 [label="r6\npc in chamber"];
+
+  r9 [label="r9"];
+  r9 -> r6 [label="r9\npc in tunnel"];
+
+  r8r9 [label="r8, r9"];
+  r8r9 -> r8br9 [label="r8\nstone in fountain"];
+  r8r9 -> r5r6 [label="r9\npc in tunnel"];
+
+  r8br9 [label="r8’, r9"];
+  r8br9 -> r8br9 [label="r8\nstone in fountain"];
+  r8br9 -> r4r6 [label="r9\npc in tunnel"];
+
+  r4r6 [label="r4, r6"];
+  r4r6 -> r6r7 [label="r4\nstone in cavity"];
+
+  r6r7 [label="r6, r7"];
+  r6r7 -> r9b [label="r6\npc in chamber"];
+  r6r7 -> r10r11 [label="r7\npc in treasure room"];
+
+  r9b [label="r9’"];
+  r9b -> r6r7 [label="r9\npc in tunnel"];
+
+  r10r11 [label="r10, r11"];
+  r10r11 -> r11 [label="r10\ntake treasure"];
+  r10r11 -> r6r7 [label="r11\npc in tunnel"];
+
+  r11 [label="r11", color="#5eb26b"];
+  r11 -> r6r7b [label="r11\npc in tunnel"];
+
+  r6r7b [label="r6, r7’"];
+  r6r7b -> r9c [label="r6\npc in chamber"];
+  r6r7b -> r11 [label="r7\npc in treasure room"];
+
+  r9c [label="r9”"];
+  r9c -> r6r7b [label="r9\npc in tunnel"];
+
+  r3b [label="r3’"];
+  r3b -> r1r5r6 [label="r3\npc in tunnel"];
+
+  r1r5r6 [label="r1, r5, r6"];
+  r1r5r6 -> r5r6 [label="r1\ntake stone"];
+  r1r5r6 -> r6 [label="r5\nstone in cavity", color="#a61416"];
+  r1r5r6 -> r9d [label="r6\npc in chamber"];
+
+  r9d [label="r9*"];
+  r9d -> r1r5r6 [label="r9\npc in tunnel"];
+
+}

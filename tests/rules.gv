@@ -1,0 +1,111 @@
+digraph cave {
+  node [shape=box,fontname=Avenir];
+
+  tunnel [label="Tunnel", color="#4dbce9"];
+  pc_cave [label="Alice+PC^Cave", color="#4dbce9"];
+  pc_tunnel [label="Alice+PC^Tunnel"];
+  pc_chamber [label="Alice+PC^Chamber"];
+  pc_treasure_room [label="Alice+PC^Treasure Room"];
+  stone_cave [label="stone-Glowing^Cave", color="#4dbce9"];
+  stone_pc [label="stone-Glowing^Alice+PC"];
+  stone_tunnel [label="stone-Glowing^Tunnel"];
+  stone_glowing_pc [label="stone+Glowing^Alice+PC"];
+  hole [label="hole^Cave", color="#4dbce9"];
+  cavity [label="cavity-Filled-Glowing^Tunnel", color="#4dbce9"];
+  cavity_filled [label="cavity+Filled-Glowing^Tunnel"];
+  cavity_glowing [label="cavity-Filled+Glowing^Tunnel"];
+  door [label="door-Open^Tunnel", color="#4dbce9"];
+  door_open [label="door+Open^Tunnel"];
+  chamber [label="Chamber", color="#4dbce9"];
+  opening [label="opening-Reversed^Tunnel", color="#4dbce9"];
+  opening_reversed [label="opening+Reversed^Chamber"];
+  fountain [label="fountain^Chamber", color="#4dbce9"];
+  treasure_room [label="Treasure Room", color="#4dbce9"];
+  treasure [label="treasure^Treasure Room", color="#4dbce9"];
+  doorway [label="doorway^Treasure Room", color="#4dbce9"];
+  treasure_pc [label="treasure^Alice+PC"];
+
+  r1 [shape=circle, label="1"];
+  stone_cave -> r1 [style=dotted];
+  pc_cave -> r1;
+  r1 -> stone_pc;
+
+  r1b [shape=circle, label="1’"];
+  stone_tunnel -> r1b [style=dotted];
+  pc_tunnel -> r1b;
+  r1b -> stone_pc;
+
+  r2 [shape=circle, label="2"];
+  stone_cave -> r2 [style=dotted];
+  hole -> r2;
+  tunnel -> r2;
+  r2 -> stone_tunnel;
+
+  r3 [shape=circle, label="3"];
+  pc_cave -> r3 [style=dotted];
+  hole -> r3;
+  tunnel -> r3
+  r3 -> pc_tunnel;
+
+  r4 [shape=circle, label="4"];
+  stone_glowing_pc -> r4 [style=dotted];
+  cavity -> r4 [style=dotted];
+  door -> r4 [style=dotted];
+  r4 -> cavity_glowing;
+  r4 -> door_open;
+
+  r5 [shape=circle, label="5"];
+  stone_pc -> r5 [style=dotted];
+  pc_tunnel -> r5;
+  cavity -> r5 [style=dotted];
+  r5 -> cavity_filled;
+
+  r5b [shape=circle, label="5’"];
+  stone_tunnel -> r5b [style=dotted];
+  cavity -> r5b [style=dotted];
+  r5b -> cavity_filled;
+
+  r6 [shape=circle, label="6"];
+  pc_tunnel -> r6 [style=dotted];
+  opening -> r6 [style=dotted];
+  chamber -> r6;
+  r6 -> pc_chamber;
+  r6 -> opening_reversed;
+
+  r7 [shape=circle, label="7"];
+  pc_tunnel -> r7 [style=dotted];
+  door_open -> r7;
+  treasure_room -> r7;
+  r7 -> pc_treasure_room;
+
+  r8 [shape=circle, label="8"];
+  stone_pc -> r8 [style=dotted];
+  pc_chamber -> r8;
+  fountain -> r8;
+  r8 -> stone_glowing_pc;
+
+  r8b [shape=circle, label="8’"];
+  stone_glowing_pc -> r8b;
+  pc_chamber -> r8b;
+  fountain -> r8b;
+  r8b -> stone_glowing_pc;
+
+  r9 [shape=circle, label="9"];
+  pc_chamber -> r9 [style=dotted];
+  opening_reversed -> r9 [style=dotted];
+  tunnel -> r9;
+  r9 -> pc_tunnel;
+  r9 -> opening;
+
+  r10 [shape=doublecircle, label="10"];
+  treasure -> r10 [style=dotted];
+  pc_treasure_room -> r10;
+  r10 -> treasure_pc;
+
+  r11 [shape=circle, label="11"];
+  pc_treasure_room -> r11 [style=dotted];
+  doorway -> r11;
+  tunnel -> r11;
+  r11 -> pc_tunnel;
+
+}
