@@ -16,7 +16,6 @@
     asynchronous: false,
     negative: true,
     once: true,
-    set_unfinished: true,
     synchronous: true,
   };
 
@@ -364,9 +363,16 @@
 
   golem.Automaton = mixin({
 
+    // Initialize the automaton.
     init: function () {
       this.states = [];
       this.state();
+    },
+
+    // Add rules to the automaton from an input string.
+    rules: function (input) {
+      parse(input, this);
+      return this;
     },
 
     state: function () {
@@ -470,7 +476,7 @@
   }, golem.Creatable);
 
 
-  golem.NameEdge = extend(golem.Edge, {
+  golem.ItemEdge = extend(golem.Edge, {
     init: function (name, dest, weight) {
       this.name = name;
       golem.Edge.init.call(this, dest, weight);
@@ -621,5 +627,147 @@
       return paths;
     }
   });
+
+  golem.OpenBracketEdge = extend(golem.Edge, {
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i,
+        this.dest.automaton.states.indexOf(this.dest), "[",
+          { color: "#f8ca00" });
+    },
+  });
+
+  golem.CloseBracketEdge = extend(golem.Edge, {
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i,
+        this.dest.automaton.states.indexOf(this.dest), "]",
+          { color: "#f8ca00" });
+    },
+  });
+
+  golem.InsideEdge = extend(golem.Edge, {
+    toString: function (i) {
+      return golem.Edge.toString.call(this, i,
+        this.dest.automaton.states.indexOf(this.dest), "",
+          { color: "#a61416" });
+    },
+  });
+
+
+  // Parse rules directly into new states of an automaton
+  var parse = golem.parse = function (input, automaton) {
+    var stack = ["start"];
+    var start = golem.State.create();
+    var state = start;
+    var edge, effect;
+    var rules = 0;
+
+    function item(c) {
+      edge = golem.ItemEdge.create(c, golem.State.create());
+      state = state.out(edge);
+      stack[stack.length - 1] = "item";
+    }
+
+    function tag(c) {
+      edge = golem.TagEdge.create(c, golem.State.create());
+      state = state.out(edge);
+      stack[stack.length - 1] = "tag";
+    }
+
+    function comma() {
+      if (!edge) {
+        throw "syntax error";
+      }
+      edge = golem.CommaEdge.create(golem.State.create());
+      state = state.out(edge);
+      stack[stack.length - 1] = "";
+    }
+
+    function semicolon() {
+      if (!edge) {
+        throw "syntax error";
+      }
+      edge = golem.SemicolonEdge.create(golem.State.create());
+      state = state.out(edge);
+      stack[stack.length - 1] = "";
+    }
+
+    function effects() {
+      effect = edge = golem.EffectEdge.create(nop, golem.State.create());
+    }
+
+    var states = {
+      "": function (c) {
+        switch (c) {
+          case " ": case "\t": case "\n": case "\r": break;
+          case "(": stack.push("comment"); break;
+          case "+": case "-": tag(c); break;
+          case ",": comma(); break;
+          case ";": semicolon(); break;
+          case ":": effects(); break;
+          case ")": throw "syntax error";
+          default:
+            item(c);
+        }
+      },
+
+      // Comments are in parentheses and can be nested.
+      comment: function (c) {
+        switch (c) {
+          case "(": stack.push("comment"); break;
+          case ")": stack.pop();
+        }
+      },
+
+      // An item name may contain spaces (which get normalized)
+      item: function (c) {
+        switch (c) {
+          case " ": case "\t": case "\n": case "\r":
+            if (edge.name[edge.name.length - 1] !== " ") {
+              edge.name += " ";
+            }
+            break;
+          case "(":
+            stack[stack.length - 1] = "";
+            stack.push("comment");
+            break;
+          case "+": case "-": tag(c); break;
+          case ",": comma(); break;
+          case ";": semicolon(); break;
+          case ":": effects(); break;
+          case ")": throw "syntax error";
+          default:
+            edge.name += c;
+        }
+      },
+
+      // A tag name starts with + or - and may not contain spaces
+      tag: function (c) {
+        switch (c) {
+          case " ": case "\t": case "\n": case "\r":
+            stack[stack.length - 1] = "";
+            break;
+          case "(":
+            stack[stack.length - 1] = "";
+            stack.push("comment");
+            break;
+          case "+": case "-": tag(c); break;
+          case ",": comma(); break;
+          case ";": semicolon(); break;
+          case ":": effects(); break;
+          case ")": throw "syntax error";
+          default:
+            edge.tag += c;
+        }
+      },
+
+    };
+
+    while (input.length > 0) {
+      var c = input[0];
+      input = input.substr(1);
+      var d = input[0];
+      states[stack[stack.length - 1]](c, d);
+    }
+  }
 
 }());

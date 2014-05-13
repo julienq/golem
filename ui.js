@@ -145,4 +145,16 @@
 
   };
 
+
+  // Create the automaton from the rules in <script> elements with the type
+  // "x-golem/x-rules"
+  var automaton = Array.prototype.filter
+    .call(document.querySelectorAll("script"), function (script) {
+      return script.type === "x-golem/x-rules";
+    }).reduce(function (automaton, script) {
+      return automaton.rules(script.textContent);
+    }, golem.Automaton.create());
+
+  console.log(automaton.toString());
+
 }());
