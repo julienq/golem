@@ -7,6 +7,8 @@
 #define log(...)
 #endif
 
+#define SLURP_CHUNK_SIZE 4096
+
 // A tag has a sign and a name, and can be part of a list of tags.
 typedef struct tag {
   char *name;
@@ -23,7 +25,6 @@ typedef struct item {
   struct item *parent;
   struct item *first_child;
   struct item *next_sibling;
-  struct item *next;
 } golem_item;
 
 extern golem_item *new_item(char *);
@@ -53,6 +54,8 @@ enum {
   effect_string          // string (string): "hello, world."
 };
 
+// TODO create new effects
+
 // A rule
 typedef struct rule {
   golem_item *item;
@@ -63,5 +66,16 @@ typedef struct rule {
 } golem_rule;
 
 extern golem_rule *new_rule(golem_item *);
+extern golem_rule *rules_from_string(char *);
+
+
+// A game
+// TODO more state? Or is the world just an uber-item?
+typedef struct world {
+  golem_item *items;
+  golem_item *pc;
+} golem_world;
+
+extern golem_world *new_world(golem_rule *);
 
 #endif

@@ -1,4 +1,4 @@
-CFLAGS = -Wall -std=c99
+CFLAGS = -Wall -std=c11 -pedantic
 
 OUT = golem
 OBJECTS = $(OUT).o

@@ -5,35 +5,41 @@
 #include <string.h>
 #include "golem.h"
 
+// Die with an error message.
 void die(const char *message) {
   fprintf(stderr, "Error: %s\n", message);
   exit(1);
 }
 
+// Malloc dying on error
+static inline void *mallocd(size_t size) {
+  void *p = malloc(size);
+  if (!p) {
+    die("could not malloc %zu bytes");
+  }
+  return p;
+}
+
 // TODO intern strings
+
 
 // Create a new tag with a sign and a name.
 golem_tag *new_tag(bool sign, char *name) {
-  golem_tag *tag = (golem_tag *)malloc(sizeof(golem_tag));
-  if (tag) {
-    tag->name = name;
-    tag->sign = sign;
-    tag->next = NULL;
-  }
+  golem_tag *tag = (golem_tag *)mallocd(sizeof(golem_tag));
+  tag->name = name;
+  tag->sign = sign;
+  tag->next = NULL;
   return tag;
 }
 
 // Create a new item with a name.
 golem_item *new_item(char *name) {
-  golem_item *item = (golem_item *)malloc(sizeof(golem_item));
-  if (item) {
-    item->name = name;
-    item->tags = NULL;
-    item->parent = NULL;
-    item->first_child = NULL;
-    item->next_sibling = NULL;
-    item->next = NULL;
-  }
+  golem_item *item = (golem_item *)mallocd(sizeof(golem_item));
+  item->name = name;
+  item->tags = NULL;
+  item->parent = NULL;
+  item->first_child = NULL;
+  item->next_sibling = NULL;
   return item;
 }
 
@@ -60,13 +66,11 @@ void tag_item(golem_item *item, golem_tag *tag) {
 
 // Create a new rule with the item set.
 golem_rule *new_rule(golem_item *item) {
-  golem_rule *rule = (golem_rule *)malloc(sizeof(golem_rule));
-  if (rule) {
-    rule->item = item;
-    rule->target = NULL;
-    rule->others = NULL;
-    rule->next = NULL;
-  }
+  golem_rule *rule = (golem_rule *)mallocd(sizeof(golem_rule));
+  rule->item = item;
+  rule->target = NULL;
+  rule->others = NULL;
+  rule->next = NULL;
   return rule;
 }
 
@@ -223,7 +227,7 @@ golem_item *parse_item_children(golem_tokenizer *tokenizer) {
     if (!first_child) {
       first_child = child = parse_item(tokenizer);
     } else {
-      child = child->next = parse_item(tokenizer);
+      child = child->next_sibling = parse_item(tokenizer);
     }
     log("- got child “%s”\n", child->name);
     if (tokenizer->token == ']') {
@@ -231,6 +235,7 @@ golem_item *parse_item_children(golem_tokenizer *tokenizer) {
     } else if (tokenizer->token != ',') {
       die("parse item children: expected ,");
     }
+    (void)get_token(tokenizer);
   }
   log("< parsed children [%d]\n", tokenizer->token);
   return first_child;
@@ -261,7 +266,7 @@ golem_item *parse_item(golem_tokenizer *tokenizer) {
   golem_tag *tag;
   int token;
   for (;;) {
-    token = get_token(tokenizer);
+    token = tokenizer->token;
     switch (token) {
       case token_name:
         append_to_item_name(item, get_token_string(tokenizer));
@@ -272,6 +277,7 @@ golem_item *parse_item(golem_tokenizer *tokenizer) {
         tag_item(item, tag);
         break;
       case '[':
+        token = get_token(tokenizer);
         children = parse_item_children(tokenizer);
         for (child = item->first_child; child && child->next_sibling;
             child = child->next_sibling);
@@ -291,6 +297,7 @@ golem_item *parse_item(golem_tokenizer *tokenizer) {
       default:
         die("parse item: expected name, tag, children or rule separator.");
     }
+    token = get_token(tokenizer);
   }
   die("parse item: unfinished item");
 }
@@ -300,6 +307,7 @@ void parse_rule_others(golem_tokenizer *tokenizer, golem_rule *rule) {
   golem_item *item;
   golem_item *last = NULL;
   for (;;) {
+    (void)get_token(tokenizer);
     item = parse_item(tokenizer);
     if (last) {
       last->next_sibling = item;
@@ -427,6 +435,7 @@ golem_rule *parse_rule(golem_tokenizer *tokenizer) {
   golem_rule *rule = new_rule(parse_item(tokenizer));
   if (tokenizer->token == ',') {
     log("- parse rule: target\n");
+    (void)get_token(tokenizer);
     rule->target = parse_item(tokenizer);
   }
   if (tokenizer->token == ';') {
@@ -450,9 +459,10 @@ golem_rule *parse_rule(golem_tokenizer *tokenizer) {
 }
 
 // Parse all rules for a given input and return the list of parsed rules.
-golem_rule *parse_rules(char *input) {
+golem_rule *rules_from_string(char *input) {
   golem_tokenizer tokenizer;
   init_tokenizer(&tokenizer, input);
+  (void)get_token(&tokenizer);
   golem_rule *rules = NULL;
   golem_rule *last = NULL;
   do {
@@ -471,12 +481,48 @@ golem_rule *parse_rules(char *input) {
   return rules;
 }
 
-#define SLURP_CHUNK_SIZE 4096
+
+// Create and populate a world from a list of rules.
+golem_world *new_world(golem_rule *rules) {
+  golem_world *world = (golem_world *)mallocd(sizeof(golem_world));
+  world->items = NULL;
+  world->pc = NULL;
+  golem_item *last = NULL;
+  for (golem_rule *rule = rules; rule; rule = rule->next) {
+    if (!rule->effects) {
+      log("+ item: %s\n", rule->item->name);
+      if (last) {
+        last->next_sibling = rule->item;
+      } else {
+        world->items = rule->item;
+      }
+      last = rule->item;
+    }
+  }
+  return world;
+}
+
+// Dump an item, its tags, children, and siblings, to stdout.
+void dump_item(golem_item *item, int indent) {
+  if (item) {
+    for (int i = 0; i < indent; ++i) {
+      putchar(' ');
+      putchar(' ');
+    }
+    printf("* %s", item->name);
+    for (golem_tag *tag = item->tags; tag; tag = tag->next) {
+      printf("%c%s", tag->sign ? '+' : '-', tag->name);
+    }
+    putchar('\n');
+    dump_item(item->first_child, indent + 1);
+    dump_item(item->next_sibling, indent);
+  }
+}
 
 // Slurp a whole file into a string.
 char *slurp_file(FILE *fp) {
   size_t length = 0;
-  char *string = (char *)malloc(sizeof(char) * SLURP_CHUNK_SIZE);
+  char *string = (char *)mallocd(sizeof(char) * SLURP_CHUNK_SIZE);
   size_t read = fread(string, sizeof(char), SLURP_CHUNK_SIZE, fp);
   length += read;
   while (read == SLURP_CHUNK_SIZE) {
@@ -491,6 +537,7 @@ char *slurp_file(FILE *fp) {
 
 // Parse all rules from STDIN.
 int main(int argc, char *argv[]) {
-  (void)parse_rules(slurp_file(stdin));
+  golem_world *world = new_world(rules_from_string(slurp_file(stdin)));
+  dump_item(world->items, 0);
   return 0;
 }
