@@ -11,21 +11,24 @@ void die(const char *message) {
   exit(1);
 }
 
+// Issue a warning message to stderr.
+static inline void warn(const char *message) {
+  fprintf(stderr, "Warning: %s\n", message);
+}
+
 // Malloc dying on error
 static inline void *mallocd(size_t size) {
   void *p = malloc(size);
   if (!p) {
-    die("could not malloc %zu bytes");
+    die("could not malloc");
   }
   return p;
 }
 
-// TODO intern strings
-
 
 // Create a new tag with a sign and a name.
 golem_tag *new_tag(bool sign, char *name) {
-  golem_tag *tag = (golem_tag *)mallocd(sizeof(golem_tag));
+  golem_tag *tag = mallocd(sizeof(golem_tag));
   tag->name = name;
   tag->sign = sign;
   tag->next = NULL;
@@ -34,7 +37,7 @@ golem_tag *new_tag(bool sign, char *name) {
 
 // Create a new item with a name.
 golem_item *new_item(char *name) {
-  golem_item *item = (golem_item *)mallocd(sizeof(golem_item));
+  golem_item *item = mallocd(sizeof(golem_item));
   item->name = name;
   item->tags = NULL;
   item->parent = NULL;
@@ -64,9 +67,17 @@ void tag_item(golem_item *item, golem_tag *tag) {
   }
 }
 
+// Test whether an item has a positive tag with the given tagname
+bool item_tagged(golem_item *item, char *tagname) {
+  golem_tag *tag;
+  for (tag = item->tags; tag && strcmp(tag->name, tagname) < 0;
+      tag = tag->next);
+  return tag && tag->sign && strcmp(tag->name, tagname) == 0;
+}
+
 // Create a new rule with the item set.
 golem_rule *new_rule(golem_item *item) {
-  golem_rule *rule = (golem_rule *)mallocd(sizeof(golem_rule));
+  golem_rule *rule = mallocd(sizeof(golem_rule));
   rule->item = item;
   rule->target = NULL;
   rule->others = NULL;
@@ -220,7 +231,7 @@ golem_tag *parse_tag(golem_tokenizer *tokenizer) {
 golem_item *parse_item(golem_tokenizer *);
 
 // Parse all child items enclosed in [] and separated by ,
-golem_item *parse_item_children(golem_tokenizer *tokenizer) {
+golem_item *parse_item_children(golem_tokenizer *tokenizer, golem_item *item) {
   log("> parse children [%d]\n", tokenizer->token);
   golem_item *first_child = NULL, *child;
   for (;;) {
@@ -229,6 +240,7 @@ golem_item *parse_item_children(golem_tokenizer *tokenizer) {
     } else {
       child = child->next_sibling = parse_item(tokenizer);
     }
+    child->parent = item;
     log("- got child “%s”\n", child->name);
     if (tokenizer->token == ']') {
       break;
@@ -278,7 +290,7 @@ golem_item *parse_item(golem_tokenizer *tokenizer) {
         break;
       case '[':
         token = get_token(tokenizer);
-        children = parse_item_children(tokenizer);
+        children = parse_item_children(tokenizer, item);
         for (child = item->first_child; child && child->next_sibling;
             child = child->next_sibling);
         if (child) {
@@ -327,7 +339,7 @@ void parse_rule_others(golem_tokenizer *tokenizer, golem_rule *rule) {
 golem_effect *parse_effect(golem_tokenizer *tokenizer) {
   log("> parse effect [%d]\n", tokenizer->token);
   int token;
-  golem_effect *effect = (golem_effect *)malloc(sizeof(effect));
+  golem_effect *effect = mallocd(sizeof(golem_effect));
   effect->reference = 0;
   effect->param.reference = 0;
   effect->next = NULL;
@@ -482,23 +494,56 @@ golem_rule *rules_from_string(char *input) {
 }
 
 
+// Check that this item is fully defined (has a name, and all its children have
+// a name as well.)
+bool check_item(golem_item *item) {
+  return item && item->name &&
+    (!item->first_child || check_item(item->first_child)) &&
+    (!item->next_sibling || check_item(item->next_sibling));
+}
+
+// Find the PC in the given item, its children, or its siblings.
+golem_item *find_pc(golem_item *item) {
+  if (item) {
+    if (item_tagged(item, "PC")) {
+      return item;
+    }
+    golem_item *pc = find_pc(item->first_child);
+    return pc ? pc : find_pc(item->next_sibling);
+  }
+  return NULL;
+}
+
 // Create and populate a world from a list of rules.
 golem_world *new_world(golem_rule *rules) {
-  golem_world *world = (golem_world *)mallocd(sizeof(golem_world));
+  golem_world *world = mallocd(sizeof(golem_world));
   world->items = NULL;
-  world->pc = NULL;
   golem_item *last = NULL;
   for (golem_rule *rule = rules; rule; rule = rule->next) {
     if (!rule->effects) {
-      log("+ item: %s\n", rule->item->name);
-      if (last) {
-        last->next_sibling = rule->item;
-      } else {
-        world->items = rule->item;
+      if (rule->target) {
+        warn("ignoring target in no-effect rule.");
       }
-      last = rule->item;
+      if (rule->others) {
+        warn("ignoring others in no-effect rule.");
+      }
+      log("+ item: %s\n", rule->item->name);
+      if (check_item(rule->item)) {
+        if (last) {
+          last->next_sibling = rule->item;
+        } else {
+          world->items = rule->item;
+        }
+        last = rule->item;
+      }
     }
   }
+  world->pc = find_pc(world->items);
+  if (!world->pc) {
+    die("no PC found.");
+  }
+  for (world->current = world->pc; world->current->parent;
+      world->current = world->current->parent);
   return world;
 }
 
@@ -509,20 +554,22 @@ void dump_item(golem_item *item, int indent) {
       putchar(' ');
       putchar(' ');
     }
-    printf("* %s", item->name);
+    printf("%c %s", item_tagged(item, "PC") ? '@' : '*', item->name);
     for (golem_tag *tag = item->tags; tag; tag = tag->next) {
       printf("%c%s", tag->sign ? '+' : '-', tag->name);
     }
     putchar('\n');
     dump_item(item->first_child, indent + 1);
-    dump_item(item->next_sibling, indent);
+    if (indent > 0) {
+      dump_item(item->next_sibling, indent);
+    }
   }
 }
 
 // Slurp a whole file into a string.
 char *slurp_file(FILE *fp) {
   size_t length = 0;
-  char *string = (char *)mallocd(sizeof(char) * SLURP_CHUNK_SIZE);
+  char *string = mallocd(sizeof(char) * SLURP_CHUNK_SIZE);
   size_t read = fread(string, sizeof(char), SLURP_CHUNK_SIZE, fp);
   length += read;
   while (read == SLURP_CHUNK_SIZE) {
@@ -538,6 +585,6 @@ char *slurp_file(FILE *fp) {
 // Parse all rules from STDIN.
 int main(int argc, char *argv[]) {
   golem_world *world = new_world(rules_from_string(slurp_file(stdin)));
-  dump_item(world->items, 0);
+  dump_item(world->current, 0);
   return 0;
 }

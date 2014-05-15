@@ -1,5 +1,5 @@
 (A single-PC, 4-room test game, with some dead ends to exercize the graph
-anlyzer.)
+analyzer.)
 
 Cave[Alice+PC, stone, hole].
 Cave: "A mysterious cave."

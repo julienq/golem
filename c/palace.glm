@@ -1,0 +1,10 @@
+(A game with multiple player characters inspired by Maniac Mansion.)
+
+Select Screen[Dave+PC, Syd+Playable, Michael+Playable, Wendy+Playable,
+  Bernard+Playable, Razor+Playable, Jeff+Playable].
+
++Playable; +SelectedToo: "Already selected two."
++Playable; +Selected: 1-Playable, 1+SelectedToo.
++Playable: 1-Playable, 1+Selected.
++Selected; +SelectedToo: 1-Selected, 1+Playable, 2-SelectedToo, 2+Selected.
++SelectedToo: 1-SelectedToo, 1+Playable.

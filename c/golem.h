@@ -29,18 +29,19 @@ typedef struct item {
 
 extern golem_item *new_item(char *);
 extern void tag_item(golem_item *, golem_tag *);
+extern bool item_tagged(golem_item *, char *);
 
 // Rules and effects
 
 typedef struct effect {
+  int type;
+  int reference;
   union {
     char *string;
     golem_tag *tag;
     golem_item *item;
     int reference;
   } param;
-  int type;
-  int reference;
   struct effect *next;
 } golem_effect;
 
@@ -69,11 +70,11 @@ extern golem_rule *new_rule(golem_item *);
 extern golem_rule *rules_from_string(char *);
 
 
-// A game
-// TODO more state? Or is the world just an uber-item?
+// The game world
 typedef struct world {
-  golem_item *items;
-  golem_item *pc;
+  golem_item *items;    // items currently in the world
+  golem_item *pc;       // the first item in the world with a +PC tag
+  golem_item *current;  // the current item in which the PC is
 } golem_world;
 
 extern golem_world *new_world(golem_rule *);
