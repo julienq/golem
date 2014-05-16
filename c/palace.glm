@@ -1,10 +1,12 @@
 (A game with multiple player characters inspired by Maniac Mansion.)
 
 Select Screen[Dave+PC, Syd+Playable, Michael+Playable, Wendy+Playable,
-  Bernard+Playable, Razor+Playable, Jeff+Playable].
+  Bernard+Playable, Razor+Playable, Jeff+Playable, selected+Zero].
 
-+Playable; +SelectedToo: "Already selected two."
-+Playable; +Selected: 1-Playable, 1+SelectedToo.
-+Playable: 1-Playable, 1+Selected.
-+Selected; +SelectedToo: 1-Selected, 1+Playable, 2-SelectedToo, 2+Selected.
-+SelectedToo: 1-SelectedToo, 1+Playable.
++Playable; selected+Zero: 1-Playable, 1+Selected, 2-Zero, 2+One.
++Playable; selected+One: 1-Playable, 1+Selected, -2, can start.
++Selected; start: 1+Playable, 1-Selected, -2, selected+One.
++Selected; selected+One: 1+Playable, 1-Selected, 2-One, 2+Zero.
+can start; +PC, +Selected, +Selected, Outside: 5[2], 5[3], 5[4].
+
+Outside.

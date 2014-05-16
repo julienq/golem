@@ -389,7 +389,7 @@ golem_effect *parse_effect(golem_tokenizer *tokenizer) {
           }
           break;
         default:
-          return NULL;
+          die("parse effect: syntax error.");
       }
       break;
     case '-':
@@ -403,6 +403,9 @@ golem_effect *parse_effect(golem_tokenizer *tokenizer) {
       break;
     default:
       die("parse effect: syntax error");
+  }
+  if (effect->type != effect_item) {
+    (void)get_token(tokenizer);
   }
   log("< parsed effect (%d) [%d]\n", effect->type, tokenizer->token);
   return effect;
@@ -423,13 +426,12 @@ bool parse_rule_effects(golem_tokenizer *tokenizer, golem_rule *rule) {
       rule->effects = effect;
     }
     last = effect;
-    int token = get_token(tokenizer);
-    log("- got an effect (%d), next [%d]\n", effect->type, token);
-    if (token == '.') {
+    log("- got an effect (%d), next [%d]\n", effect->type, tokenizer->token);
+    if (tokenizer->token == '.') {
       log("< parsed effects [%d]\n", tokenizer->token);
       return false;
     }
-    if (token != ',') {
+    if (tokenizer->token != ',') {
       if (effect->type == effect_string) {
         log("< parsed effects; last: %d [%d]\n", effect->type,
             tokenizer->token);
